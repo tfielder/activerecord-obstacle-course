@@ -89,8 +89,8 @@ describe 'ActiveRecord Obstacle Course' do
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    orders_of_500_and_700 = Order.where("amount = ? OR amount = ?", 700, 500).count
-    orders_of_700_and_1000 = Order.where("amount = ? OR amount = ?", 700, 1000).count
+    orders_of_500_and_700 = Order.where("amount = ? OR amount = ?", 700, 500)
+    orders_of_700_and_1000 = Order.where("amount = ? OR amount = ?", 700, 1000)
     # ------------------------------------------------------------
 
     # Expectation
@@ -106,8 +106,8 @@ describe 'ActiveRecord Obstacle Course' do
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    binding.pry
-    # items = Item.select(:id).where(id: ids)
+
+    items = Item.select(:id).where(id: ids)
     # ------------------------------------------------------------
 
     # Expectation
@@ -119,10 +119,11 @@ describe 'ActiveRecord Obstacle Course' do
     expected_result = [order_1, order_3, order_5, order_7]
 
     # ----------------------- Using Ruby -------------------------
-    orders = Order.all.select { |order| ids.include?(order.id) }
+    #orders = Order.all.select { |order| ids.include?(order.id) }
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
+    orders = Order.where(id: ids)
     # Solution goes here
     # ------------------------------------------------------------
 
@@ -134,11 +135,12 @@ describe 'ActiveRecord Obstacle Course' do
     expected_result = [order_8, order_10, order_11, order_12, order_13, order_14, order_15]
 
     # ----------------------- Using Ruby -------------------------
-    orders_between_700_and_1000 = Order.all.select { |order| order.amount >= 700 && order.amount <= 1000 }
+    #orders_between_700_and_1000 = Order.all.select { |order| order.amount >= 700 && order.amount <= 1000 }
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
+
+    orders_between_700_and_1000 = Order.where("amount >= ? AND amount <= ?", 700, 1000)
     # ------------------------------------------------------------
 
     # Expectation
@@ -149,11 +151,11 @@ describe 'ActiveRecord Obstacle Course' do
     expected_result = [order_1, order_2, order_3, order_4]
 
     # ----------------------- Using Ruby -------------------------
-    orders_less_than_550 = Order.all.select { |order| order.amount < 550 }
+    #orders_less_than_550 = Order.all.select { |order| order.amount < 550 }
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
+    orders_less_than_550 = Order.where("amount < ?", 550)
     # ------------------------------------------------------------
 
     # Expectation
@@ -164,11 +166,11 @@ describe 'ActiveRecord Obstacle Course' do
     expected_result = [order_3, order_6, order_9, order_12, order_15]
 
     # ----------------------- Using Ruby -------------------------
-    orders_of_user_3 = Order.all.select { |order| order.user_id == 3 }
+      #orders_of_user_3 = Order.all.select { |order| order.user_id == 3 }
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
+     orders_of_user_3 = Order.where(user_id: 3)
     # ------------------------------------------------------------
 
     # Expectation
@@ -179,11 +181,11 @@ describe 'ActiveRecord Obstacle Course' do
     expected_result = [order_15, order_14, order_13, order_12, order_11, order_10, order_8, order_9, order_7, order_6, order_5, order_4, order_3, order_2, order_1]
 
     # ----------------------- Using Ruby -------------------------
-    orders = Order.all.sort_by { |order| order.amount }.reverse
+    #orders = Order.all.sort_by { |order| order.amount }.reverse
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
+    orders = Order.order(amount: :desc)
     # ------------------------------------------------------------
 
     # Expectation
@@ -198,14 +200,14 @@ describe 'ActiveRecord Obstacle Course' do
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
+    orders = Order.order(:amount)
     # ------------------------------------------------------------
 
     # Expectation
     expect(orders).to eq(expected_result)
   end
 
-  it '12. should return all items except items: 3, 4 & 5' do
+  xit '12. should return all items except items: 3, 4 & 5' do
     items_not_included = [item_3, item_4, item_5]
     expected_result = [item_1, item_2, item_7, item_8, item_9, item_10]
 
@@ -221,7 +223,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(items).to eq(expected_result)
   end
 
-  it "13. groups an order's items by name" do
+  xit "13. groups an order's items by name" do
     expected_result = [item_2, item_3, item_4, item_5]
 
     # ----------------------- Using Ruby -------------------------
@@ -237,7 +239,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(grouped_items).to eq(expected_result)
   end
 
-  it '14. plucks all values from one column' do
+  xit '14. plucks all values from one column' do
     expected_result = ['Thing 1', 'Thing 2', 'Thing 3', 'Thing 4', 'Thing 5', 'Thing 7', 'Thing 8', 'Thing 9', 'Thing 10']
 
     # ----------------------- Using Ruby -------------------------
@@ -252,7 +254,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(names).to eq(expected_result)
   end
 
-  it '15. gets all item names associated with all orders' do
+  xit '15. gets all item names associated with all orders' do
     expected_result = ['Thing 1', 'Thing 2', 'Thing 3', 'Thing 1',
                        'Thing 1', 'Thing 2', 'Thing 3', 'Thing 1',
                        'Thing 2', 'Thing 3', 'Thing 4', 'Thing 5',
@@ -287,7 +289,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(names).to eq(expected_result)
   end
 
-  it '16. returns the names of users who ordered one specific item' do
+  xit '16. returns the names of users who ordered one specific item' do
     expected_result = [user_3.name, user_2.name]
 
     # ----------------------- Using Raw SQL-----------------------
@@ -310,7 +312,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(users).to eq(expected_result)
   end
 
-  it '17. returns the name of items associated with a specific order' do
+  xit '17. returns the name of items associated with a specific order' do
     expected_result = ['Thing 1', 'Thing 4', 'Thing 5', 'Thing 7']
 
     # ----------------------- Using Ruby -------------------------
@@ -325,7 +327,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(names).to eq(expected_result)
   end
 
-  it '18. returns the sorted names of items for a user order' do
+  xit '18. returns the sorted names of items for a user order' do
     expected_result = ['Thing 3', 'Thing 4', 'Thing 8', 'Thing 10']
 
     # ----------------------- Using Ruby -------------------------
@@ -349,7 +351,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(items_for_user_3_third_order).to eq(expected_result)
   end
 
-  it '19. returns the average amount for all orders' do
+  xit '19. returns the average amount for all orders' do
     # ---------------------- Using Ruby -------------------------
     average = (Order.all.map(&:amount).inject(:+)) / (Order.count)
     # -----------------------------------------------------------
@@ -362,7 +364,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(average).to eq(650)
   end
 
-  it '20. returns the average amount for all orders for one user' do
+  xit '20. returns the average amount for all orders for one user' do
     # ---------------------- Using Ruby -------------------------
     orders = Order.all.map do |order|
       order if order.user_id == 3
@@ -379,7 +381,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(average.to_i).to eq(715)
   end
 
-  it '21. calculates the total sales' do
+  xit '21. calculates the total sales' do
     # ---------------------- Using Ruby -------------------------
     total_sales = Order.all.map(&:amount).inject(:+)
     # -----------------------------------------------------------
@@ -392,7 +394,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(total_sales).to eq(9750)
   end
 
-  it '22. calculates the total sales for all but one user' do
+  xit '22. calculates the total sales for all but one user' do
     # ---------------------- Using Ruby -------------------------
     orders = Order.all.map do |order|
       order if order.user_id != 2
@@ -408,7 +410,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(total_sales).to eq(6500)
   end
 
-  it '23. returns all orders which include item_4' do
+  xit '23. returns all orders which include item_4' do
     expected_result = [order_3, order_5, order_9, order_10, order_11, order_13, order_15]
 
     # ------------------ Inefficient Solution -------------------
@@ -424,7 +426,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(orders).to eq(expected_result)
   end
 
-  it '24. returns all orders for user 2 which include item_4' do
+  xit '24. returns all orders for user 2 which include item_4' do
     expected_result = [order_5, order_11]
 
     # ------------------ Inefficient Solution -------------------
@@ -441,7 +443,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(orders).to eq(expected_result)
   end
 
-  it '25. returns items that are associated with one or more orders' do
+  xit '25. returns items that are associated with one or more orders' do
     unordered_item = Item.create(name: 'Unordered Item')
     expected_result = [item_1, item_2, item_3, item_4, item_5, item_7, item_8, item_9, item_10]
 
@@ -464,7 +466,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(ordered_items).to_not include(unordered_item)
   end
 
-  it '26. returns the names of items that are associated with one or more orders' do
+  xit '26. returns the names of items that are associated with one or more orders' do
     unordered_item_1 = Item.create(name: 'Unordered Item_1')
     unordered_item_2 = Item.create(name: 'Unordered Item2_')
     unordered_item_3 = Item.create(name: 'Unordered Item_3')
@@ -494,6 +496,7 @@ describe 'ActiveRecord Obstacle Course' do
   end
 
   xit '27. returns a table of information for all users orders' do
+    #this is the first of the xits
     custom_results = [user_3, user_1, user_2]
 
     # using a single ActiveRecord call, fetch a joined object that mimics the
