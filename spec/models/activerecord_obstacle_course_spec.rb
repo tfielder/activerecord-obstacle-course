@@ -212,27 +212,29 @@ describe 'ActiveRecord Obstacle Course' do
     expected_result = [item_1, item_2, item_7, item_8, item_9, item_10]
 
     # ----------------------- Using Ruby -------------------------
-    items = Item.all.map { |item| item unless items_not_included.include?(item) }.compact
+    #items = Item.all.map { |item| item unless items_not_included.include?(item) }.compact
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
+    binding.pry
+    items = Item.where.not(items_not_included)
     # ------------------------------------------------------------
 
     # Expectation
     expect(items).to eq(expected_result)
   end
 
-  xit "13. groups an order's items by name" do
+  it "13. groups an order's items by name" do
     expected_result = [item_2, item_3, item_4, item_5]
 
     # ----------------------- Using Ruby -------------------------
-    order = Order.find(3)
-    grouped_items = order.items.sort_by { |item| item.name }
+    # order = Order.find(3)
+    # grouped_items = order.items.sort_by { |item| item.name }
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
+    binding.pry
+    grouped_items = Order.select(id: 3).joins(:item)
     # ------------------------------------------------------------
 
     # Expectation
