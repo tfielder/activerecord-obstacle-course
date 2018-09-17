@@ -289,7 +289,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(names).to eq(expected_result)
   end
 
-  it '16. returns the names of users who ordered one specific item' do
+  xit '16. returns the names of users who ordered one specific item' do
     expected_result = [user_3.name, user_2.name]
 
     # ----------------------- Using Raw SQL-----------------------
@@ -305,15 +305,16 @@ describe 'ActiveRecord Obstacle Course' do
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    #need to join users n orders and items . . .
-    users = User.select(:name).distinct.joins(orders: :items).where("item_id = #{item_8.id}").pluck(:name)
+
+    # users = User.select(:name).distinct.joins(orders: :items).where("item_id = #{item_8.id}").pluck(:name)
+    users = User.joins(:order_items).where("item_id = #{item_8.id}").pluck(:name)
     # ------------------------------------------------------------
 
     # Expectation
     expect(users).to eq(expected_result)
   end
 
-  xit '17. returns the name of items associated with a specific order' do
+  it '17. returns the name of items associated with a specific order' do
     expected_result = ['Thing 1', 'Thing 4', 'Thing 5', 'Thing 7']
 
     # ----------------------- Using Ruby -------------------------
@@ -321,7 +322,8 @@ describe 'ActiveRecord Obstacle Course' do
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    names =
+    binding.pry
+    #names = OrderItem.select(:name).where("order_id = ?" Order.last.id)
     # ------------------------------------------------------------
 
     # Expectation
@@ -332,20 +334,20 @@ describe 'ActiveRecord Obstacle Course' do
     expected_result = ['Thing 3', 'Thing 4', 'Thing 8', 'Thing 10']
 
     # ----------------------- Using Ruby -------------------------
-    items_for_user_3_third_order = []
-    grouped_orders = []
-    Order.all.each do |order|
-      if order.items
-        grouped_orders << order if order.user_id == 3
-      end
-    end
-    grouped_orders.each_with_index do |order, idx|
-      items_for_user_3_third_order = order.items.map(&:name) if idx == 2
-    end
+    # items_for_user_3_third_order = []
+    # grouped_orders = []
+    # Order.all.each do |order|
+    #   if order.items
+    #     grouped_orders << order if order.user_id == 3
+    #   end
+    # end
+    # grouped_orders.each_with_index do |order, idx|
+    #   items_for_user_3_third_order = order.items.map(&:name) if idx == 2
+    # end
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
+    items_for_user_3_third_order = Items.select(:name).joins(:orders)
     # ------------------------------------------------------------
 
     # Expectation
