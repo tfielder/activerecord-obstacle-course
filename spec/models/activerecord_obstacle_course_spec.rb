@@ -303,10 +303,10 @@ describe 'ActiveRecord Obstacle Course' do
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    binding.pry
+
     # users = User.select(:name).distinct.joins(orders: :items).where("item_id = #{item_8.id}").pluck(:name)
     # users = User.joins(:order_items).where("item_id = #{item_8.id}").pluck(:name)
-    users = User.distinct.joins("INNER JOIN orders ON orders.user_id = users.id").pluck(:name)
+    users = User.joins(:order_items).distinct.where("item_id = 7").pluck(:name)
 
     # ------------------------------------------------------------
 
@@ -329,7 +329,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(names).to eq(expected_result)
   end
 
-  xit '18. returns the sorted names of items for a user order' do
+  it '18. returns the sorted names of items for a user order' do
     expected_result = ['Thing 3', 'Thing 4', 'Thing 8', 'Thing 10']
 
     # ----------------------- Using Ruby -------------------------
@@ -346,11 +346,7 @@ describe 'ActiveRecord Obstacle Course' do
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    binding.pry
-    #items_for_user_3_third_order = Items.select(:name).joins(:orders)
-    #items_for_user_3_third_order = Item.select(:name).joins(:orders).where("order_id = ?", Order.last.id).pluck(:name)
-    #Item.joins(:orders).where("orders.user_id = ?", 3)
-    #maybe a group by and get third order
+    items_for_user_3_third_order = Order.where("user_id = 3")[2].items.pluck(:name)
     # ------------------------------------------------------------
 
     # Expectation
@@ -418,7 +414,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(total_sales).to eq(6500)
   end
 
-  xit '23. returns all orders which include item_4' do
+  it '23. returns all orders which include item_4' do
     expected_result = [order_3, order_5, order_9, order_10, order_11, order_13, order_15]
 
     # ------------------ Inefficient Solution -------------------
@@ -427,15 +423,14 @@ describe 'ActiveRecord Obstacle Course' do
     # -----------------------------------------------------------
 
     # ------------------ Improved Solution ----------------------
-
-    orders = Order.includes(:items).where("item_id = 4")
+    orders = Order.joins(:items).where("item_id = 4")
     # -----------------------------------------------------------
 
     # Expectation
     expect(orders).to eq(expected_result)
   end
 
-  xit '24. returns all orders for user 2 which include item_4' do
+  it '24. returns all orders for user 2 which include item_4' do
     expected_result = [order_5, order_11]
 
     # ------------------ Inefficient Solution -------------------
@@ -445,16 +440,14 @@ describe 'ActiveRecord Obstacle Course' do
     # -----------------------------------------------------------
 
     # ------------------ Improved Solution ----------------------
-    binding.pry
-    # OrderItem.pluck(:order).where(user_id: 2).where(item_id: 4)
-    OrderItem.joins(:order).where(user_id: 2).where(item_id: 4)
+    orders = Order.where(user_id: user_2.id).joins(:order_items).where("item_id = ?", item_4.id)
     # -----------------------------------------------------------
 
     # Expectation
     expect(orders).to eq(expected_result)
   end
 
-  xit '25. returns items that are associated with one or more orders' do
+  it '25. returns items that are associated with one or more orders' do
     unordered_item = Item.create(name: 'Unordered Item')
     expected_result = [item_1, item_2, item_3, item_4, item_5, item_7, item_8, item_9, item_10]
 
@@ -469,8 +462,7 @@ describe 'ActiveRecord Obstacle Course' do
     # ------------------------------------------------------------
 
     # ------------------ ActiveRecord Solution ----------------------
-    binding.pry
-
+    ordered_items = Item.joins(:orders).distinct
     # ---------------------------------------------------------------
 
     # Expectations
@@ -521,7 +513,7 @@ describe 'ActiveRecord Obstacle Course' do
     # Sal        |         5
 
     # ------------------ ActiveRecord Solution ----------------------
-    custom_results = User.joins("JOIN orders ON orders.user_id = users.id").select("users.name", "count(user_id) as total_order_count").order(name: :desc)
+    custom_results = User.joins(:orders).select("users.name", "count(user_id) AS total_order_count").group(:name)
     #custom_results = User.joins("JOIN orders ON orders.user_id = users.id").joins(:items).select("users.name", group(:name)
     # ---------------------------------------------------------------
 
@@ -533,7 +525,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(custom_results[2].total_order_count).to eq(5)
   end
 
-  xit '28. returns a table of information for all users items' do
+  it '28. returns a table of information for all users items' do
     custom_results = [user_2, user_1, user_3]
 
     # using a single ActiveRecord call, fetch a joined object that mimics the
@@ -545,7 +537,7 @@ describe 'ActiveRecord Obstacle Course' do
     # Dione      |         20
 
     # ------------------ ActiveRecord Solution ----------------------
-    # custom_results =
+    custom_results = User.joins(:items).select("users.name", "count(user_id) AS total_item_count").group(:name).order(name: :desc)
     # ---------------------------------------------------------------
 
     expect(custom_results[0].name).to eq(user_2.name)
@@ -556,7 +548,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(custom_results[2].total_item_count).to eq(20)
   end
 
-  xit '29. returns a table of information for all users orders and item counts' do
+  it '29. returns a table of information for all users orders and item counts' do
     # using a single ActiveRecord call, fetch a joined object that mimics the
     # following table of information:
     # --------------------------------------------------------------------------
@@ -585,13 +577,13 @@ describe 'ActiveRecord Obstacle Course' do
     # from users
     #   join orders on orders.user_id=users.id
     #   join order_items on order_items.order_id=orders.id
-    # group by users.name, orders.id
+    # group by users.name, orders.
     # order by users.name desc')
     #
     # how will you turn this into the proper ActiveRecord commands?
 
     # ------------------ ActiveRecord Solution ----------------------
-    # data = []
+     data = User.joins(:order_items).select("name AS user_name", "order_id", "count(item_id) AS item_count").group("name", "order_id").order(name: :desc)
 
     # ---------------------------------------------------------------
 
@@ -607,7 +599,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(data[12].item_count).to eq(4)
   end
 
-  xit '30. returns the names of items that have been ordered without n+1 queries' do
+  it '30. returns the names of items that have been ordered without n+1 queries' do
     # What is an n+1 query?
     # This video is older, but the concepts explained are still relevant:
     # http://railscasts.com/episodes/372-bullet
@@ -619,7 +611,7 @@ describe 'ActiveRecord Obstacle Course' do
 
     # ------------------------------------------------------
     #orders = Order.all # Edit only this line
-
+    orders = Order.includes(:items)
     # ------------------------------------------------------
 
     # Do not edit below this line
