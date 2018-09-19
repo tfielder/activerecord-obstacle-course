@@ -124,7 +124,6 @@ describe 'ActiveRecord Obstacle Course' do
 
     # ------------------ Using ActiveRecord ----------------------
     orders = Order.where(id: ids)
-    # Solution goes here
     # ------------------------------------------------------------
 
     # Expectation
@@ -139,7 +138,6 @@ describe 'ActiveRecord Obstacle Course' do
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-
     orders_between_700_and_1000 = Order.where("amount >= ? AND amount <= ?", 700, 1000)
     # ------------------------------------------------------------
 
@@ -305,16 +303,18 @@ describe 'ActiveRecord Obstacle Course' do
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-
+    binding.pry
     # users = User.select(:name).distinct.joins(orders: :items).where("item_id = #{item_8.id}").pluck(:name)
-    users = User.joins(:order_items).where("item_id = #{item_8.id}").pluck(:name)
+    # users = User.joins(:order_items).where("item_id = #{item_8.id}").pluck(:name)
+    users = User.distinct.joins("INNER JOIN orders ON orders.user_id = users.id").pluck(:name)
+
     # ------------------------------------------------------------
 
     # Expectation
     expect(users).to eq(expected_result)
   end
 
-  xit '17. returns the name of items associated with a specific order' do
+  it '17. returns the name of items associated with a specific order' do
     expected_result = ['Thing 1', 'Thing 4', 'Thing 5', 'Thing 7']
 
     # ----------------------- Using Ruby -------------------------
@@ -322,8 +322,7 @@ describe 'ActiveRecord Obstacle Course' do
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-
-    names = Item.select(:name).joins(:orders).where("order_id = ?", Order.last.id)
+    names = Item.select(:name).joins(:orders).where("order_id = ?", Order.last.id).pluck(:name)
     # ------------------------------------------------------------
 
     # Expectation
@@ -347,9 +346,11 @@ describe 'ActiveRecord Obstacle Course' do
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
+    binding.pry
     #items_for_user_3_third_order = Items.select(:name).joins(:orders)
-
-    #sorting by
+    #items_for_user_3_third_order = Item.select(:name).joins(:orders).where("order_id = ?", Order.last.id).pluck(:name)
+    #Item.joins(:orders).where("orders.user_id = ?", 3)
+    #maybe a group by and get third order
     # ------------------------------------------------------------
 
     # Expectation
@@ -417,7 +418,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(total_sales).to eq(6500)
   end
 
-  xit '23. returns all orders which include item_4' do
+  it '23. returns all orders which include item_4' do
     expected_result = [order_3, order_5, order_9, order_10, order_11, order_13, order_15]
 
     # ------------------ Inefficient Solution -------------------
@@ -426,7 +427,8 @@ describe 'ActiveRecord Obstacle Course' do
     # -----------------------------------------------------------
 
     # ------------------ Improved Solution ----------------------
-    orders = Order.where(item_id: 4)
+    binding.pry
+    orders = Order.where("item_id = 4")
     # -----------------------------------------------------------
 
     # Expectation
@@ -457,17 +459,18 @@ describe 'ActiveRecord Obstacle Course' do
     expected_result = [item_1, item_2, item_3, item_4, item_5, item_7, item_8, item_9, item_10]
 
     # ----------------------- Using Ruby -------------------------
-    items = Item.all
-
-    ordered_items = items.map do |item|
-      item if item.orders.present?
-    end
-
-    ordered_items = ordered_items.compact
+    # items = Item.all
+    #
+    # ordered_items = items.map do |item|
+    #   item if item.orders.present?
+    # end
+    #
+    # ordered_items = ordered_items.compact
     # ------------------------------------------------------------
 
     # ------------------ ActiveRecord Solution ----------------------
-    # Solution goes here
+    binding.pry
+
     # ---------------------------------------------------------------
 
     # Expectations
@@ -475,7 +478,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(ordered_items).to_not include(unordered_item)
   end
 
-  xit '26. returns the names of items that are associated with one or more orders' do
+  it '26. returns the names of items that are associated with one or more orders' do
     unordered_item_1 = Item.create(name: 'Unordered Item_1')
     unordered_item_2 = Item.create(name: 'Unordered Item2_')
     unordered_item_3 = Item.create(name: 'Unordered Item_3')
@@ -484,19 +487,20 @@ describe 'ActiveRecord Obstacle Course' do
     expected_result = ['Thing 1', 'Thing 2', 'Thing 3', 'Thing 4', 'Thing 5', 'Thing 7', 'Thing 8', 'Thing 9', 'Thing 10']
 
     # ----------------------- Using Ruby -------------------------
-    items = Item.all
-
-    ordered_items = items.map do |item|
-      item if item.orders.present?
-    end.compact
-
-    ordered_items_names = ordered_items.map(&:name)
+    # items = Item.all
+    #
+    # ordered_items = items.map do |item|
+    #   item if item.orders.present?
+    # end.compact
+    #
+    # ordered_items_names = ordered_items.map(&:name)
     # ------------------------------------------------------------
 
     # ------------------ ActiveRecord Solution ----------------------
     # Solution goes here
     # When you find a solution, experiment with adjusting your method chaining
     # Which ones are you able to switch around without relying on Ruby's Enumerable methods?
+    ordered_items_names = Item.joins(:orders).distinct.pluck(:name)
     # ---------------------------------------------------------------
 
     # Expectations
@@ -517,7 +521,8 @@ describe 'ActiveRecord Obstacle Course' do
     # Sal        |         5
 
     # ------------------ ActiveRecord Solution ----------------------
-    # custom_results =
+    binding.pry
+    custom_results = 0
     # ---------------------------------------------------------------
 
     expect(custom_results[0].name).to eq(user_3.name)
