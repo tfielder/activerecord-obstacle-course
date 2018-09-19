@@ -287,7 +287,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(names).to eq(expected_result)
   end
 
-  xit '16. returns the names of users who ordered one specific item' do
+  it '16. returns the names of users who ordered one specific item' do
     expected_result = [user_3.name, user_2.name]
 
     # ----------------------- Using Raw SQL-----------------------
@@ -418,7 +418,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(total_sales).to eq(6500)
   end
 
-  it '23. returns all orders which include item_4' do
+  xit '23. returns all orders which include item_4' do
     expected_result = [order_3, order_5, order_9, order_10, order_11, order_13, order_15]
 
     # ------------------ Inefficient Solution -------------------
@@ -427,8 +427,8 @@ describe 'ActiveRecord Obstacle Course' do
     # -----------------------------------------------------------
 
     # ------------------ Improved Solution ----------------------
-    binding.pry
-    orders = Order.where("item_id = 4")
+
+    orders = Order.includes(:items).where("item_id = 4")
     # -----------------------------------------------------------
 
     # Expectation
@@ -508,7 +508,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(ordered_items_names).to_not include(unordered_items)
   end
 
-  xit '27. returns a table of information for all users orders' do
+  it '27. returns a table of information for all users orders' do
     #this is the first of the xits
     custom_results = [user_3, user_1, user_2]
 
@@ -521,8 +521,8 @@ describe 'ActiveRecord Obstacle Course' do
     # Sal        |         5
 
     # ------------------ ActiveRecord Solution ----------------------
-    binding.pry
-    custom_results = 0
+    custom_results = User.joins("JOIN orders ON orders.user_id = users.id").select("users.name", "count(user_id) as total_order_count").order(name: :desc)
+    #custom_results = User.joins("JOIN orders ON orders.user_id = users.id").joins(:items).select("users.name", group(:name)
     # ---------------------------------------------------------------
 
     expect(custom_results[0].name).to eq(user_3.name)
@@ -592,6 +592,7 @@ describe 'ActiveRecord Obstacle Course' do
 
     # ------------------ ActiveRecord Solution ----------------------
     # data = []
+
     # ---------------------------------------------------------------
 
 
@@ -617,7 +618,8 @@ describe 'ActiveRecord Obstacle Course' do
     Bullet.start_request
 
     # ------------------------------------------------------
-    orders = Order.all # Edit only this line
+    #orders = Order.all # Edit only this line
+
     # ------------------------------------------------------
 
     # Do not edit below this line
